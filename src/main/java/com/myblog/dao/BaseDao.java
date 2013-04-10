@@ -1,4 +1,4 @@
-package com.myweb.app.dao;
+package com.myblog.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,7 +10,7 @@ import java.sql.Statement;
 public class BaseDao {
 
 	private Connection connection;
-	private String dbUrl = "jdbc:sqlite:blog.db";
+	private String dbUrl = "jdbc:sqlite:/home/martin/workspace/MyBlog/src/main/resources/db/blog.db";
 	
 	public BaseDao() {
 		try {
@@ -35,9 +35,12 @@ public class BaseDao {
 	
 	public boolean execute(String sql) {
 		Statement stt = null;
+		log(sql);
 		try {
 			stt = connection.createStatement();
-			return stt.execute(sql);
+			stt.execute(sql);
+			return stt.getUpdateCount() != -1;
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -51,7 +54,7 @@ public class BaseDao {
 	
 	public ResultSet executeQuery(String sql, Object... params) {
 		PreparedStatement stt = null;
-		System.out.println("Sql: " + sql);
+		log(sql);
 		try {
 			stt = connection.prepareStatement(sql);
 			if (params != null && params.length != 0) {
@@ -68,6 +71,7 @@ public class BaseDao {
 	
 	public int executeUpdate(String sql, Object... params) {
 		PreparedStatement stt = null;
+		log(sql);
 		try {
 			stt = connection.prepareStatement(sql);
 			if (params != null && params.length != 0) {
@@ -86,5 +90,18 @@ public class BaseDao {
 				}
 			} catch (SQLException e) {			}
 		}
+	}
+	
+	public void setDbUrl(String url) {
+		dbUrl = url;
+		try {
+			init();
+		} catch (Exception e) {
+
+		}
+	}
+	
+	private void log(String sql) {
+		System.out.println("sql -> " + sql);
 	}
 }

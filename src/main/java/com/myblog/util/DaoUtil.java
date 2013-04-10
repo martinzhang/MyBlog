@@ -1,9 +1,9 @@
-package com.myweb.app.util;
+package com.myblog.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import com.myweb.app.model.User;
+import com.myblog.model.User;
 
 public class DaoUtil {
 	public static String[] getFields(Class clz) {

@@ -1,9 +1,13 @@
-package com.myweb.app.dao;
+package com.myblog.dao;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+
+import com.myblog.model.User;
 
 public class GenericDao<T> extends BaseDao {
 	private Class<T> typeClz;
@@ -19,6 +23,9 @@ public class GenericDao<T> extends BaseDao {
 	private void init() {
 		clzName = typeClz.getSimpleName();
 		clzFields = typeClz.getDeclaredFields();
+		
+		filterDbField();
+		
 		try {
 			Class supClz = typeClz.getSuperclass();
 			if (supClz != null) {
@@ -28,6 +35,17 @@ public class GenericDao<T> extends BaseDao {
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+	}
+
+	private void filterDbField() {
+		List<Field> fldLst = new ArrayList<Field>();
+		
+		for (Field fld : clzFields) {
+			if (isDbDataType(fld.getType())) {
+				fldLst.add(fld);
+			}
+		}
+		clzFields = fldLst.toArray(new Field[fldLst.size()]);
 	}
 	
 	public int add(T t) {
@@ -82,10 +100,6 @@ public class GenericDao<T> extends BaseDao {
 		return sb.toString();
 	}
 	
-	public static void main(String[] aregs) {
-		System.out.println(join("aa", "bb", "cc"));
-	}
-	
 	public int delete(int id) {
 		String sql = String.format("delete from %s where id = ?", clzName);
 		return executeUpdate(sql, id);
@@ -104,14 +118,26 @@ public class GenericDao<T> extends BaseDao {
 					}
 					
 					for (Field fld : clzFields) {
-						int colIdx = findColumn(rs, fld.getName());
-						if (colIdx == -1) continue;
-						fld.setAccessible(true);
-						fld.set(instance, rs.getObject(colIdx));
+//						if (isDbDataType(fld.getType()) == false) continue;
+						try {
+							int colIdx = findColumn(rs, fld.getName());
+							if (colIdx == -1) continue;
+							fld.setAccessible(true);
+							Object val;
+							if (fld.getType() == Date.class) {
+								val = rs.getDate(colIdx);
+							} else {
+								val = rs.getObject(colIdx);
+							}
+							System.out.println(fld.getName() +" " + val);
+							fld.set(instance, val);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 					retVal.add(instance);
 				} catch (Exception e) {
-					System.err.println(e.getMessage());
+					e.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
@@ -120,23 +146,66 @@ public class GenericDao<T> extends BaseDao {
 		return retVal;
 	}
 	
-	public void createTable() {
-		String sql = "drop table if exists " + clzName;
-		execute(sql);
+	public boolean reCreateTable() {
+		dropTable();
+		return createTable();
+	}
+	
+	public boolean createTable() {
+		String sql = buidSqlCreate();
+		if (sql == null) return false;
+		return execute(sql);
 	}
 	
 	private String buidSqlCreate() {
-		String[] colNames = new String[clzFields.length];
-		for (int i = 0; i < clzFields.length; i++) {
+		int fildLen = clzFields.length;
+		if (fildLen == 0) return null;
+		String[] colNames = new String[fildLen];
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < fildLen; i++) {
 			Field fld = clzFields[i];
-			colNames[i] = fld.getName();
+			String dbType = getDbDataType(fld.getType());
+			if (dbType != null) {
+				colNames[i] = fld.getName();
+				sb.append(fld.getName());
+				sb.append(" ");
+				sb.append(dbType);
+				sb.append(",");
+			}
+		}
+		if (sb.length() != 0) {
+			sb.deleteCharAt(sb.length() - 1);
 		}
 		return String.format("create table if not exists %s " +
-				"(id int primary key autoinrement not null,loginid varchar(255), )", clzName);
+				"(id integer primary key autoincrement, %s )", clzName, sb.toString());
+	}
+	
+	private String getDbDataType(Class clz) {
+		String type = null;
+		if (clz.isPrimitive()) {
+			type = clz.getSimpleName();
+		} else if (clz == String.class) {
+			type = "varchar(1024)";
+		} else if (clz == Date.class) {
+			type = "datetime";
+		}
+		
+		return type;
+	}
+	
+	private boolean isDbDataType(Class clz) {
+		return getDbDataType(clz) != null;
 	}
 	
 	public void dropTable() {
 		String sql = "drop table if exists " + clzName;
 		execute(sql);
+	}
+	
+
+	public static void main(String[] aregs) {
+		GenericDao<User> dao = new GenericDao<User>(User.class);
+		boolean res = dao.reCreateTable();
+		System.out.println(res);
 	}
 }

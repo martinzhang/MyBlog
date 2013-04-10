@@ -1,4 +1,4 @@
-package com.myweb.app.model;
+package com.myblog.model;
 
 public class BaseModel {
 

@@ -1,4 +1,4 @@
-package com.myweb.app;
+package com.myblog;
 
 import java.io.IOException;
 
