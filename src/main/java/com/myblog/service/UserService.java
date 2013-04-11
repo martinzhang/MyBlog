@@ -11,7 +11,14 @@ public class UserService {
 		return userDao.add(u) != -1;
 	}
 	public static List<User> getList() {
-		// TODO Auto-generated method stub
 		return userDao.getList();
 	}
+	public static List<User> getBy(String colName, Object val) {
+		return userDao.getBy(colName, val);
+	}
+	
+	public static User getOneBy(String colName, Object colVal) {
+		return userDao.getOneBy(colName, colVal);
+	}
+	
 }

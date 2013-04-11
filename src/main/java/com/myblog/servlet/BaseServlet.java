@@ -11,12 +11,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.myblog.model.User;
+
 public abstract class BaseServlet extends HttpServlet {
 	
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	protected String[] pathInfoArr = new String[]{};
 	protected String[] paramArr = new String[]{};
 	protected HttpServletRequest req;
 	protected HttpServletResponse resp;
+	protected String reqMethod = "GET";
 	
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -25,6 +32,7 @@ public abstract class BaseServlet extends HttpServlet {
 
 		this.req = req;
 		this.resp = resp;
+		reqMethod = req.getMethod();
 		
 		if (pathInfo != null) {
 			pathInfo = pathInfo.substring(1);
@@ -88,6 +96,14 @@ public abstract class BaseServlet extends HttpServlet {
 		}
 	}
 	
+	protected void redirectApp(String page) {
+		try {
+			resp.sendRedirect(String.format("/MyBlog/%s", page));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	protected void dispatch(String page) {
 		try {
 			req.getRequestDispatcher(String.format("/view/%s/%s.jsp", 
@@ -97,6 +113,17 @@ public abstract class BaseServlet extends HttpServlet {
 			loge(e.getMessage());
 		}
 	}
+	
+
+	protected void dispatch(String page, String message) {
+		req.setAttribute("message", message);
+		dispatch(page);
+	}
+
+	protected User getLoginUser() {
+		return (User) req.getSession().getAttribute("loginUser");
+	}
+	
 	public abstract Class getModelClass();
 	
 	public void loge(Object o) {

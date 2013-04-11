@@ -3,6 +3,8 @@ package com.myblog.model;
 import java.util.Date;
 import java.util.List;
 
+import com.myblog.util.DaoUtil;
+
 public class User extends BaseModel {
 	
 	private String loginId;
@@ -24,11 +26,14 @@ public class User extends BaseModel {
 	}
 	@Override
 	public String toString() {
-		return String.format("User [loginId=%s, password=%s, createDate=%s]",
-				loginId, password, createDate);
+		return String.format("User [id=%s, loginId=%s, password=%s, createdDate=%s]",getId(),
+				loginId, password, DaoUtil.formatDateString(createDate));
 	}
 	public Date getCreateDate() {
 		return createDate;
+	}
+	public String getCreateDateStr() {
+		return DaoUtil.formatDateString(createDate);
 	}
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;

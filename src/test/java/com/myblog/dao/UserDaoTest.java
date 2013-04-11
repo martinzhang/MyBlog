@@ -1,6 +1,6 @@
 package com.myblog.dao;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -14,28 +14,37 @@ public class UserDaoTest {
 	GenericDao<User> userDao = new GenericDao<User>(User.class);
 	@Before
 	public void setup() {
-		userDao.setDbUrl("jdbc:sqlite:/home/martin/workspace/MyBlog/src/main/resources/db/blog.db");
+		BaseDao.setDbUrl("jdbc:sqlite:/home/martin/tuohe/workspace/MyBlog/src/main/resources/db/blog.db");
 	}
 	@Test
-//	@Ignore
+	@Ignore
 	public void addUser() {
 //		userDao.createUserTable();
 		
 		User u = new User();
 		u.setLoginId("martin");
 		u.setPassword("mypass");
-		u.setCreateDate(new Date());
+		u.setCreateDate(new Date(System.currentTimeMillis()));
 		int res = userDao.add(u);
 		System.out.println(res);
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void getUserList() {
 		List<User> users = userDao.getList();
 		
 		System.out.println(users);
 	}
+	
+	@Test
+//	@Ignore
+	public void getBy() {
+		List<User> users = userDao.getBy("id", 99);
+		
+		System.out.println(users);
+	}
+	
 	
 	@Test
 	@Ignore

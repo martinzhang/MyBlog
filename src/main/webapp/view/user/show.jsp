@@ -2,11 +2,10 @@
 
 <%@include file="../header.jsp" %>
 
-<strong>list user</strong> <p />
+<strong>user info</strong> <p />
 
-<c:forEach items="${users }" var="user">
+
 	${user.loginId }
 	${user.password }
 	${user.createDateStr }
-	<br />
-</c:forEach>
+	

@@ -6,11 +6,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.myblog.util.DaoUtil;
 
 public class BaseDao {
 
 	private Connection connection;
-	private String dbUrl = "jdbc:sqlite:/home/martin/workspace/MyBlog/src/main/resources/db/blog.db";
+	private static String dbUrl = "jdbc:sqlite:/home/martin/tuohe/workspace/MyBlog/src/main/resources/db/blog.db";
 	
 	public BaseDao() {
 		try {
@@ -76,7 +80,11 @@ public class BaseDao {
 			stt = connection.prepareStatement(sql);
 			if (params != null && params.length != 0) {
 				for (int i = 0; i < params.length; i++) {
-					stt.setObject(i + 1, params[0]);
+					Object val = params[i];
+					if (val instanceof Date) {
+						val = DaoUtil.formatDateString((Date) val); 
+					}
+					stt.setObject(i + 1, val); 
 				}
 			}
 			
@@ -92,13 +100,8 @@ public class BaseDao {
 		}
 	}
 	
-	public void setDbUrl(String url) {
+	public static void setDbUrl(String url) {
 		dbUrl = url;
-		try {
-			init();
-		} catch (Exception e) {
-
-		}
 	}
 	
 	private void log(String sql) {

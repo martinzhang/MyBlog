@@ -7,9 +7,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.myblog.model.User;
+import com.myblog.util.DaoUtil;
 
 public class GenericDao<T> extends BaseDao {
+	private static Logger logger = LoggerFactory.getLogger(GenericDao.class);
 	private Class<T> typeClz;
 	private String clzName;
 	private Field[] clzFields;
@@ -49,8 +54,23 @@ public class GenericDao<T> extends BaseDao {
 	}
 	
 	public int add(T t) {
-		String sql = buidSqlInsert(t);
-		return executeUpdate(sql);
+		String[] colNames = new String[clzFields.length];
+		Object[] colVals = new Object[clzFields.length];
+		for (int i = 0; i < clzFields.length; i++) {
+			Field fld = clzFields[i];
+			colNames[i] = fld.getName();
+			fld.setAccessible(true);
+			try {
+				colVals[i] = fld.get(t); 
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+			}
+		}
+		String colName = join(colNames);
+		Arrays.fill(colNames, "?");
+		String sql = String.format("insert into %s (%s) values(%s)",clzName, colName , join(colNames));
+		
+		return executeUpdate(sql, colVals);
 	}
 	
 	private String buidSqlInsert(T t) {
@@ -61,7 +81,7 @@ public class GenericDao<T> extends BaseDao {
 			colNames[i] = fld.getName();
 			fld.setAccessible(true);
 			try {
-				colVals[i] = "'" + fld.get(t) + "'"; 
+				colVals[i] = fld.get(t); 
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}
@@ -105,10 +125,29 @@ public class GenericDao<T> extends BaseDao {
 		return executeUpdate(sql, id);
 	}
 	
-	public List<T> getList() {
+
+	public T get() {
+		String sql = "select * from user where id = dd and dd = dd";
+		
+		return null;
+	}
+	
+	public T getOneBy(String colName, Object colVal) {
+		List<T> ts = getBy(colName, colVal);
+		if (ts.size() > 0) {
+			return ts.get(0);
+		}
+		return null;
+	}
+	
+	public List<T> getBy(String colName, Object colVal) {
+		String sql = String.format("select * from %s where %s = ?", clzName, colName);
+		ResultSet rs = executeQuery(sql, colVal);
+		return parseResultSet(rs);
+	}
+	
+	private List<T> parseResultSet(ResultSet rs) {
 		List<T> retVal = new ArrayList<T>();
-		String sql = "select * from " + clzName;
-		ResultSet rs = executeQuery(sql);
 		try {
 			while(rs.next()) {
 				try {
@@ -118,18 +157,15 @@ public class GenericDao<T> extends BaseDao {
 					}
 					
 					for (Field fld : clzFields) {
-//						if (isDbDataType(fld.getType()) == false) continue;
+		//				if (isDbDataType(fld.getType()) == false) continue;
 						try {
 							int colIdx = findColumn(rs, fld.getName());
 							if (colIdx == -1) continue;
 							fld.setAccessible(true);
-							Object val;
-							if (fld.getType() == Date.class) {
-								val = rs.getDate(colIdx);
-							} else {
-								val = rs.getObject(colIdx);
+							Object val = rs.getObject(colIdx);
+							if (fld.getType() == Date.class && val != null) {
+								val = DaoUtil.parseDateString(val.toString());
 							}
-							System.out.println(fld.getName() +" " + val);
 							fld.set(instance, val);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -137,13 +173,19 @@ public class GenericDao<T> extends BaseDao {
 					}
 					retVal.add(instance);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("", e);
 				}
 			}
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			logger.error("", e);
 		}
 		return retVal;
+	}
+	
+	public List<T> getList() {
+		String sql = "select * from " + clzName;
+		ResultSet rs = executeQuery(sql);
+		return parseResultSet(rs);
 	}
 	
 	public boolean reCreateTable() {

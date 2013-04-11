@@ -1,5 +1,6 @@
 package com.myblog;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CommTest {
@@ -13,6 +14,8 @@ public class CommTest {
 
 	private void doMain() {
 		Date d = new Date();
+		SimpleDateFormat df = new SimpleDateFormat();
+		System.out.println(d);
 	}
 	
 	class Parent<T> {

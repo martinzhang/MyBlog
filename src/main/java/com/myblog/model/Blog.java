@@ -2,12 +2,14 @@ package com.myblog.model;
 
 import java.util.Date;
 
+import com.myblog.util.DaoUtil;
+
 public class Blog extends BaseModel {
 	
 	private String title;
 	private String content;
-	private Date createDate;
-	private Date updateDate;
+	private Date createDate = new Date();
+	private Date updateDate = new Date();
 	private User author;
 	private int authorId;
 	
@@ -31,6 +33,12 @@ public class Blog extends BaseModel {
 	}
 	public Date getUpdateDate() {
 		return updateDate;
+	}
+	public String getUpdateDateStr() {
+		return DaoUtil.formatDateString(updateDate);
+	}
+	public String getCreateDateStr() {
+		return DaoUtil.formatDateString(createDate);
 	}
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
