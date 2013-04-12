@@ -2,19 +2,21 @@ package com.myblog.dao;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.myblog.model.Blog;
 import com.myblog.model.User;
 import com.myblog.util.DaoUtil;
 
 public class GenericDao<T> extends BaseDao {
-	private static Logger logger = LoggerFactory.getLogger(GenericDao.class);
 	private Class<T> typeClz;
 	private String clzName;
 	private Field[] clzFields;
@@ -63,14 +65,27 @@ public class GenericDao<T> extends BaseDao {
 			try {
 				colVals[i] = fld.get(t); 
 			} catch (Exception e) {
-				System.err.println(e.getMessage());
+				logger.info("", e);
 			}
 		}
 		String colName = join(colNames);
 		Arrays.fill(colNames, "?");
-		String sql = String.format("insert into %s (%s) values(%s)",clzName, colName , join(colNames));
-		
-		return executeUpdate(sql, colVals);
+		String sql = String.format("insert into %s (%s) values(%s);",clzName, colName , join(colNames));
+		int res = executeUpdate(sql, colVals);
+		int retVal = -1;
+		if (res > 0) {
+			ResultSet rs = executeQuery("select max(rowid) from " + clzName);
+			try {
+				if (rs.next()) {
+					retVal = rs.getInt(1);
+				}
+				rs.close();
+			} catch (SQLException e) {
+				logger.debug("", e);
+			}
+		}
+				
+		return retVal;
 	}
 	
 	private String buidSqlInsert(T t) {
@@ -89,17 +104,59 @@ public class GenericDao<T> extends BaseDao {
 		return String.format("insert into %s (%s) values(%s)",clzName,  join(colNames), join(colVals));
 	}
 	
+
+	public int update(T t) {
+		String[] colNames = new String[clzFields.length];
+		Object[] colVals = new Object[clzFields.length];
+		for (int i = 0; i < clzFields.length; i++) {
+			Field fld = clzFields[i];
+			fld.setAccessible(true);
+			Object val = null;
+			try {
+				val = fld.get(t);
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+			}
+			System.out.println("UPDATE COLS " + fld.getName() + " = " + val);
+			if (val != null && StringUtils.equals("0", val.toString()) == false) {
+				colVals[i] = val;
+				colNames[i] = fld.getName();
+			}
+		}
+		Object id = null;
+		try {
+			id = idField.get(t);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+		
+		ArrayList<Object> oList = new ArrayList<Object>();
+		
+		for(Object val : colVals) {
+			if (val != null)
+				oList.add(val);
+		}
+		
+		String sql = String.format("update %s set %s where id = %s", clzName, 
+				joinUpdate(colNames), id );
+		
+		return executeUpdate(sql, oList.toArray(new Object[oList.size()]));
+	}
+	
 	private String buidSqlUpdate(T t) {
 		return String.format("update %s set dd = dd, dd= dd where dd = 1", clzName);
 	}
 	
-	private static <E, F> String join(E[] keys, F[] values) {
+	private static <E> String joinUpdate(E[] keys) {
 		StringBuffer sb = new StringBuffer();
+		E k;
 		for (int i = 0; i < keys.length; i++) {
-			sb.append(keys[i])
+			k = keys[i];
+			if (k == null) continue;
+			sb.append(k)
 				.append("=")
-				.append(i < values.length ? values[i] : "null")
-				.append(",");
+				.append("?,");
 		}
 		if (sb.toString().endsWith(",")) {
 			sb.deleteCharAt(sb.length() - 1);
@@ -178,7 +235,14 @@ public class GenericDao<T> extends BaseDao {
 			}
 		} catch (Exception e) {
 			logger.error("", e);
+		} finally {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
+		
 		return retVal;
 	}
 	
@@ -250,4 +314,5 @@ public class GenericDao<T> extends BaseDao {
 		boolean res = dao.reCreateTable();
 		System.out.println(res);
 	}
+
 }

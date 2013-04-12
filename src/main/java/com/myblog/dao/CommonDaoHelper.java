@@ -12,7 +12,9 @@ public class CommonDaoHelper {
 	}
 	
 	private void doMain() {
-		createDbTables();
+//		createDbTables();
+		GenericDao<Comment> dao = new GenericDao<Comment>(Comment.class);
+		dao.reCreateTable();
 	}
 
 	public void createDbTables() {
@@ -20,7 +22,6 @@ public class CommonDaoHelper {
 		GenericDao<BaseModel> dao;
 		for (Class clz : clzz) {
 			dao = new GenericDao<BaseModel>(clz);
-			dao.setDbUrl("jdbc:sqlite:/home/martin/workspace/MyBlog/src/main/resources/db/blog.db");
 			dao.dropTable();
 			dao.createTable();
 		}

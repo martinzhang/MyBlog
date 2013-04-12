@@ -7,12 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.myblog.util.DaoUtil;
 
 public class BaseDao {
-
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	private Connection connection;
 	private static String dbUrl = "jdbc:sqlite:/home/martin/tuohe/workspace/MyBlog/src/main/resources/db/blog.db";
 	
@@ -105,6 +109,10 @@ public class BaseDao {
 	}
 	
 	private void log(String sql) {
-		System.out.println("sql -> " + sql);
+		logger.debug("sql -> " + sql);
+	}
+	
+	private void log(String sql, Object... params) {
+		System.out.println(String.format("sql -> %s %s", sql, Arrays.toString(params)));
 	}
 }

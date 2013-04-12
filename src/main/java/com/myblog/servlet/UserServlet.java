@@ -48,6 +48,11 @@ public class UserServlet extends BaseServlet {
 		}
 	}
 	
+	public void logout() {
+		req.getSession().setAttribute("loginUser", null);
+		redirectApp("index.jsp");
+	}
+	
 	public void show() {
 		if (paramArr.length > 0) {
 			User u = UserService.getOneBy("loginId", paramArr[0]);

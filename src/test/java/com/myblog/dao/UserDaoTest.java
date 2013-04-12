@@ -17,7 +17,7 @@ public class UserDaoTest {
 		BaseDao.setDbUrl("jdbc:sqlite:/home/martin/tuohe/workspace/MyBlog/src/main/resources/db/blog.db");
 	}
 	@Test
-	@Ignore
+//	@Ignore
 	public void addUser() {
 //		userDao.createUserTable();
 		
@@ -38,7 +38,7 @@ public class UserDaoTest {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void getBy() {
 		List<User> users = userDao.getBy("id", 99);
 		

@@ -25,6 +25,7 @@ public class DaoUtil {
 	private final static Logger logger = LoggerFactory.getLogger(DaoUtil.class);
 	
 	public static String formatDateString(Date date) {
+		if (date == null) return "";
 		return dateFormat.format(date);
 	}
 	
@@ -36,6 +37,11 @@ public class DaoUtil {
 		}
 		return null;
 	}
+	
+	public static String hh() {
+		return "helllll";
+	}
+	
 	public static void main(String[] args) {
 		getFields(User.class);
 	}

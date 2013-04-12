@@ -4,6 +4,10 @@
   <filter>
   	<filter-name>logincheck</filter-name>
   	<filter-class>com.myblog.filter.LoginCheckFilter</filter-class>
+  	<init-param>
+  		<param-name>loginUrls</param-name>
+  		<param-value>blog/add,blog/edit,blog/del,blog/add_cmt,user/show</param-value>
+  	</init-param>
   </filter>
   
   <filter-mapping>

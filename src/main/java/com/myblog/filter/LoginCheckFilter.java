@@ -14,12 +14,12 @@ public class LoginCheckFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-
+		String url = filterConfig.getInitParameter("loginUrls");
+		if (url != null) {
+			loginUrls = url.split(",");
+		}
 	}
-	String[] loginUrls = {
-			"blog/add",
-			"user/show"
-	};
+	String[] loginUrls = {};
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,

@@ -1,0 +1,38 @@
+body {
+	background-color:#ccc;
+}
+
+#sub_info {
+		
+	}
+	
+	#main_box {
+		width: 90%;
+	}
+	
+	#ctn_bd {
+		padding: 7px;
+	}
+	
+	.comm_box {
+		margin-bottom: 3px;
+		padding-left: 5px;
+		border-left: 1px solid;
+		border-bottom: 1px dashed;
+	}
+	
+	#cmt_box {
+		width: 70%;
+		margin-left:20px;
+	}
+	
+	.cmt_syl {
+		margin-bottom: 5px;
+		border-bottom: 1px dotted #59955C;
+		width: 88%;
+	}
+	
+	.sub_syl {
+		color:grey;
+		font-size:12px;
+	}

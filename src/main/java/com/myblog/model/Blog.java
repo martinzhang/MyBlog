@@ -1,6 +1,7 @@
 package com.myblog.model;
 
 import java.util.Date;
+import java.util.List;
 
 import com.myblog.util.DaoUtil;
 
@@ -8,10 +9,11 @@ public class Blog extends BaseModel {
 	
 	private String title;
 	private String content;
-	private Date createDate = new Date();
-	private Date updateDate = new Date();
+	private Date createDate;
+	private Date updateDate;
 	private User author;
 	private int authorId;
+	private List<Comment> comments;
 	
 	public String getTitle() {
 		return title;
@@ -54,6 +56,18 @@ public class Blog extends BaseModel {
 	}
 	public void setAuthorId(int authorId) {
 		this.authorId = authorId;
+	}
+	@Override
+	public String toString() {
+		return String.format(
+				"Blog [id=%s, title=%s, content=%s, createDate=%s, updateDate=%s]",getId(),
+				title, content, createDate, updateDate);
+	}
+	public List<Comment> getComments() {
+		return comments;
+	}
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 	
 	

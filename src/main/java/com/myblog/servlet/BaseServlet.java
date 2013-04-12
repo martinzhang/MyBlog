@@ -56,7 +56,7 @@ public abstract class BaseServlet extends HttpServlet {
 			mtd.setAccessible(true);
 			mtd.invoke(this);
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			logger.error("", e);
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			try {
@@ -72,17 +72,30 @@ public abstract class BaseServlet extends HttpServlet {
 	protected <T> T getBoundInstance(Class<T> clz) {
 		Field[] flds = clz.getDeclaredFields();
 		T t = null;
+		String valToSet = null;
 		try {
 			t = clz.newInstance();
 			for (Field fld : flds) {
 				fld.setAccessible(true);
-				String val = req.getParameter(fld.getName());
+				valToSet = req.getParameter(fld.getName());
+				logger.debug("parameter name/value {}/{}", fld.getName(), valToSet);
+				if (valToSet == null) continue;
 				if (fld.getType() == String.class) {
-					fld.set(t, val);
+					fld.set(t, valToSet);
+				} else if (fld.getType() == int.class) {
+					fld.set(t, Integer.parseInt(valToSet));
 				}
 			}
+			String id = req.getParameter("id");
+			if (id != null) {
+				Field idFld = clz.getSuperclass().getDeclaredField("id");
+				idFld.setAccessible(true);
+				idFld.set(t, Integer.parseInt(id));
+			}
+		} catch (NumberFormatException e) {
+			logger.error(valToSet, e);
 		} catch (Exception e) {
-			loge(e.getMessage());
+			logger.error("", e);
 		}
 		return t;
 	}

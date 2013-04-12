@@ -13,9 +13,8 @@ public class CommTest {
 	}
 
 	private void doMain() {
-		Date d = new Date();
-		SimpleDateFormat df = new SimpleDateFormat();
-		System.out.println(d);
+		int dd = 33;
+		System.out.println();
 	}
 	
 	class Parent<T> {
