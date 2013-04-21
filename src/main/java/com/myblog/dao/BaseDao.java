@@ -18,7 +18,7 @@ import com.myblog.util.DaoUtil;
 public class BaseDao {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	private Connection connection;
-	private static String dbUrl = "jdbc:sqlite:/home/martin/tuohe/workspace/MyBlog/src/main/resources/db/blog.db";
+	private static String dbUrl = "jdbc:sqlite:/home/moxia/soft/eclipse/workspace/MyBlog/src/main/resources/db/blog.db";
 	
 	public BaseDao() {
 		try {
