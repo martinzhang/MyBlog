@@ -21,7 +21,7 @@ public class DaoUtil {
 		return names.toArray(new String[names.size()]);
 	}
 	
-	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss");
+	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	private final static Logger logger = LoggerFactory.getLogger(DaoUtil.class);
 	
 	public static String formatDateString(Date date) {
